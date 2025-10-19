@@ -11,6 +11,44 @@ include 'db_connect.php';
 // 🥇 MEDAL CRUD
 // ----------------------------
 
+// 🔄 Recalculate Overall Medals
+if (isset($_POST['refresh_overall'])) {
+    $departments = $conn->query("SELECT id FROM departments");
+    while ($dept = $departments->fetch_assoc()) {
+        $department_id = $dept['id'];
+
+        // Sum all medals from categories except 'Overall'
+        $sum = $conn->query("
+            SELECT 
+                IFNULL(SUM(gold), 0) AS gold,
+                IFNULL(SUM(silver), 0) AS silver,
+                IFNULL(SUM(bronze), 0) AS bronze
+            FROM medals
+            WHERE department_id = $department_id AND category != 'Overall'
+        ")->fetch_assoc();
+
+        $total = $sum['gold'] + $sum['silver'] + $sum['bronze'];
+
+        // Check if 'Overall' exists
+        $check = $conn->prepare("SELECT id FROM medals WHERE department_id=? AND category='Overall'");
+        $check->bind_param("i", $department_id);
+        $check->execute();
+        $result_check = $check->get_result();
+
+        if ($result_check->num_rows > 0) {
+            $stmt = $conn->prepare("UPDATE medals SET gold=?, silver=?, bronze=?, total=? WHERE department_id=? AND category='Overall'");
+            $stmt->bind_param("iiiii", $sum['gold'], $sum['silver'], $sum['bronze'], $total, $department_id);
+        } else {
+            $stmt = $conn->prepare("INSERT INTO medals (department_id, category, gold, silver, bronze, total) VALUES (?, 'Overall', ?, ?, ?, ?)");
+            $stmt->bind_param("iiiii", $department_id, $sum['gold'], $sum['silver'], $sum['bronze'], $total);
+        }
+        $stmt->execute();
+    }
+
+    $_SESSION['message'] = "Overall medals refreshed successfully!";
+    header("Location: dashboard.php#medals");
+    exit();
+}
 
 // Handle Update Medal Record (Update specific department’s medal count)
 if (isset($_POST['update_medal'])) {
@@ -36,8 +74,6 @@ if (isset($_POST['update_medal'])) {
     header("Location: dashboard.php");
     exit();
 }
-
-
 
 // ✅ Fetch all departments and overall medal totals
 $departments = $conn->query("
@@ -186,6 +222,18 @@ th { background-color: #212529 !important; color: white !important; }
   <!-- 🥇 OVERALL MEDAL TABULATION -->
   <div id="medals" class="card shadow p-4 mb-5">
     <h3 class="section-title mb-4">🥇 Overall Medal Tabulation</h3>
+
+    <?php if (isset($_SESSION['message'])): ?>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?= $_SESSION['message']; unset($_SESSION['message']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
+    <form method="POST" class="mb-3 text-end">
+      <button type="submit" name="refresh_overall" class="btn btn-warning">🔄 Refresh Overall Medals</button>
+    </form>
+
     <div class="table-responsive">
       <table class="table table-bordered text-center align-middle">
         <thead>
@@ -283,5 +331,6 @@ th { background-color: #212529 !important; color: white !important; }
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
