@@ -49,7 +49,9 @@ try {
         $check->close();
     }
 
-    $conn->close();
+    
+    // ❌ Do NOT close the connection here — index.php still needs it
+    // $conn->close();
 
 } catch (mysqli_sql_exception $e) {
     // Log silently instead of echoing
