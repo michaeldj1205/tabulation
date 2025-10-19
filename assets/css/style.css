@@ -1,0 +1,250 @@
+/* Custom styles for medal standings cards */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+.navbar {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 2rem;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Medal Standings Cards */
+.medal-card {
+    margin-bottom: 1rem;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.medal-card:hover {
+    transform: scale(1.02);
+}
+
+.rank-badge {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+    z-index: 10;
+}
+
+.rank-1 { background: linear-gradient(45deg, #FFD700, #FFA500); }
+.rank-2 { background: linear-gradient(45deg, #C0C0C0, #A8A8A8); }
+.rank-3 { background: linear-gradient(45deg, #CD7F32, #A0522D); }
+
+.medal-card .card-body {
+    padding-top: 2.5rem;
+}
+
+.department-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.mascot-name {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.medal-counts {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.medal-item {
+    flex: 1;
+}
+
+.medal-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.gold { color: #FFD700; }
+.silver { color: #C0C0C0; }
+.bronze { color: #CD7F32; }
+
+.medal-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: block;
+}
+
+.total-medals {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Event Results Cards */
+.event-card {
+    margin-bottom: 1rem;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+}
+
+.event-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 15px 15px 0 0;
+}
+
+.event-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.event-category {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.winner-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 0;
+}
+
+.winner-item {
+    text-align: center;
+    flex: 1;
+}
+
+.winner-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.winner-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.no-winner {
+    color: #999;
+    font-style: italic;
+}
+
+/* Footer */
+.footer {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    backdrop-filter: blur(10px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .medal-counts {
+        flex-direction: column;
+    }
+
+    .medal-item {
+        margin-bottom: 1rem;
+    }
+
+    .winner-section {
+        flex-direction: column;
+    }
+
+    .winner-item {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.medal-card, .event-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

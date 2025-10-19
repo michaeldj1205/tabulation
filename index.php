@@ -38,43 +38,7 @@ $results = $conn->query("
 <meta charset="UTF-8">
 <title>🏆 Intramural Medal Standings</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-body {
-  background-color: #f8f9fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  scroll-behavior: smooth;
-}
-.navbar {
-  background-color: #212529;
-}
-.navbar-brand, .nav-link {
-  color: #fff !important;
-}
-.section-title {
-  font-weight: 700;
-  color: #343a40;
-}
-.card {
-  border-radius: 15px;
-}
-th {
-  background-color: #212529 !important;
-  color: white !important;
-}
-.rank-1 { background-color: #fff3cd !important; }
-.rank-2 { background-color: #e2e3e5 !important; }
-.rank-3 { background-color: #f8d7da !important; }
-.footer {
-  background-color: #212529;
-  color: white;
-  text-align: center;
-  padding: 10px;
-  margin-top: 40px;
-}
-.table td, .table th {
-  vertical-align: middle;
-}
-</style>
+<link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body>
 
@@ -95,71 +59,95 @@ th {
 
 <!-- 🥇 MEDAL TABULATION -->
 <section id="medals" class="container mt-5">
-  <div class="card shadow p-4 mb-5">
-    <h2 class="section-title text-center mb-4">🥇 Overall Medal Standings</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover text-center align-middle">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Department</th>
-            <th>Mascot</th>
-            <th>Gold 🥇</th>
-            <th>Silver 🥈</th>
-            <th>Bronze 🥉</th>
-            <th>Total 🧮</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php 
-          $rank = 1;
-          while ($row = $medals->fetch_assoc()):
-            $rankClass = ($rank == 1) ? "rank-1" : (($rank == 2) ? "rank-2" : (($rank == 3) ? "rank-3" : ""));
-          ?>
-          <tr class="<?= $rankClass ?>">
-            <td><strong><?= $rank++; ?></strong></td>
-            <td><strong><?= htmlspecialchars($row['code']); ?></strong></td>
-            <td><?= htmlspecialchars($row['mascot']); ?></td>
-            <td><?= $row['gold']; ?></td>
-            <td><?= $row['silver']; ?></td>
-            <td><?= $row['bronze']; ?></td>
-            <td><strong><?= $row['total']; ?></strong></td>
-          </tr>
-          <?php endwhile; ?>
-        </tbody>
-      </table>
+  <h2 class="section-title text-center mb-4">🥇 Overall Medal Standings</h2>
+  <div class="row">
+    <?php
+    $rank = 1;
+    while ($row = $medals->fetch_assoc()):
+      $rankClass = ($rank == 1) ? "rank-1" : (($rank == 2) ? "rank-2" : (($rank == 3) ? "rank-3" : ""));
+    ?>
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card medal-card h-100 position-relative">
+        <div class="rank-badge <?= $rankClass ?>">
+          <?= $rank++ ?>
+        </div>
+        <div class="card-body text-center">
+          <h5 class="department-name"><?= htmlspecialchars($row['code']); ?></h5>
+          <p class="mascot-name"><?= htmlspecialchars($row['mascot']); ?></p>
+
+          <div class="medal-counts">
+            <div class="medal-item">
+              <div class="medal-icon gold">🥇</div>
+              <span class="medal-number"><?= $row['gold']; ?></span>
+            </div>
+            <div class="medal-item">
+              <div class="medal-icon silver">🥈</div>
+              <span class="medal-number"><?= $row['silver']; ?></span>
+            </div>
+            <div class="medal-item">
+              <div class="medal-icon bronze">🥉</div>
+              <span class="medal-number"><?= $row['bronze']; ?></span>
+            </div>
+          </div>
+
+          <div class="total-medals mt-3">
+            <strong>Total: <?= $row['total']; ?></strong>
+          </div>
+        </div>
+      </div>
     </div>
+    <?php endwhile; ?>
   </div>
 </section>
 
 <!-- ⚔️ EVENT RESULTS -->
 <section id="events" class="container mb-5">
-  <div class="card shadow p-4">
-    <h2 class="section-title text-center mb-4">⚔️ Event Medal Results</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered text-center align-middle">
-        <thead>
-          <tr>
-            <th>Sport</th>
-            <th>Category</th>
-            <th>🥇 Gold</th>
-            <th>🥈 Silver</th>
-            <th>🥉 Bronze</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php while ($r = $results->fetch_assoc()): ?>
-          <tr>
-            <td><strong><?= htmlspecialchars($r['sport_name']); ?></strong></td>
-            <td><?= htmlspecialchars($r['category']); ?></td>
-            <td><?= $r['gold_code'] ?? '--'; ?></td>
-            <td><?= $r['silver_code'] ?? '--'; ?></td>
-            <td><?= $r['bronze_code'] ?? '--'; ?></td>
-          </tr>
-          <?php endwhile; ?>
-        </tbody>
-      </table>
+  <h2 class="section-title text-center mb-4">⚔️ Event Medal Results</h2>
+  <div class="row">
+    <?php while ($r = $results->fetch_assoc()): ?>
+    <div class="col-lg-6 col-md-6 mb-4">
+      <div class="card event-card h-100">
+        <div class="event-header">
+          <h5 class="event-title">⚔️ <?= htmlspecialchars($r['sport_name']); ?></h5>
+          <p class="event-category"><?= htmlspecialchars($r['category']); ?></p>
+        </div>
+        <div class="card-body">
+          <div class="winner-section">
+            <div class="winner-item">
+              <div class="winner-label">🥇 Gold</div>
+              <div class="winner-name">
+                <?php if ($r['gold_code']): ?>
+                  <?= htmlspecialchars($r['gold_code']); ?>
+                <?php else: ?>
+                  <span class="no-winner">--</span>
+                <?php endif; ?>
+              </div>
+            </div>
+            <div class="winner-item">
+              <div class="winner-label">🥈 Silver</div>
+              <div class="winner-name">
+                <?php if ($r['silver_code']): ?>
+                  <?= htmlspecialchars($r['silver_code']); ?>
+                <?php else: ?>
+                  <span class="no-winner">--</span>
+                <?php endif; ?>
+              </div>
+            </div>
+            <div class="winner-item">
+              <div class="winner-label">🥉 Bronze</div>
+              <div class="winner-name">
+                <?php if ($r['bronze_code']): ?>
+                  <?= htmlspecialchars($r['bronze_code']); ?>
+                <?php else: ?>
+                  <span class="no-winner">--</span>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <?php endwhile; ?>
   </div>
 </section>
 
