@@ -30,8 +30,8 @@ try {
     }
 
     // Now create the default admin user
-    $defaultUsername = "admin";
-    $defaultPassword = "12345";
+    $defaultUsername = "intramuralsAdmin@CCIS.com";
+    $defaultPassword = "a#+1SecureP@ssword";
 
     // Check if admin already exists
     $check = $conn_temp->prepare("SELECT id FROM admin_users WHERE username = ?");
