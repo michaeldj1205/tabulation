@@ -113,6 +113,12 @@ th {
           $currentDay = $day;
           $hasData = true;
         endif;
+
+        // 🕒 Convert game time to 12-hour format if it exists
+        $formatted_time = '';
+        if (!empty($row['game_time'])) {
+          $formatted_time = date("g:i A", strtotime($row['game_time']));
+        }
     ?>
         <tr>
           <td><strong><?= htmlspecialchars($row['sport_name']); ?></strong></td>
@@ -121,7 +127,7 @@ th {
           <td><?= htmlspecialchars($row['team_b']); ?></td>
           <td>
             <?= $row['game_date'] ? htmlspecialchars($row['game_date']) : ''; ?>
-            <?= $row['game_time'] ? ' / ' . htmlspecialchars(substr($row['game_time'], 0, 5)) : ''; ?>
+            <?= $formatted_time ? ' / ' . htmlspecialchars($formatted_time) : ''; ?>
           </td>
           <td><?= $row['location'] ? htmlspecialchars($row['location']) : '<span class="text-muted">—</span>'; ?></td>
           <td>

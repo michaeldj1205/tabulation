@@ -252,9 +252,16 @@ body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verda
               <td><?= htmlspecialchars($row['team_a_code']); ?></td>
               <td><?= htmlspecialchars($row['team_b_code']); ?></td>
               <td>
-                <?= $row['game_date'] ? htmlspecialchars($row['game_date']) : '' ?>
-                <?= $row['game_time'] ? ' / ' . htmlspecialchars($row['game_time']) : '' ?>
-              </td>
+  <?= $row['game_date'] ? htmlspecialchars($row['game_date']) : '' ?>
+  <?php if ($row['game_time']): ?>
+    <?php
+      // Convert time (HH:MM:SS or HH:MM) to 12-hour format with AM/PM
+      $formatted_time = date("g:i A", strtotime($row['game_time']));
+    ?>
+    / <?= htmlspecialchars($formatted_time) ?>
+  <?php endif; ?>
+</td>
+
               <td><?= $row['location'] ? htmlspecialchars($row['location']) : '<span class="small-muted">—</span>'; ?></td>
               <td><?= $row['winner_code'] ? '<strong>' . htmlspecialchars($row['winner_code']) . '</strong>' : '<span class="small-muted">—</span>'; ?></td>
               <td>
