@@ -11,8 +11,9 @@ include 'db_connect.php';
 // 🥇 MEDAL CRUD
 // ----------------------------
 
-// Handle Add Medal Record
-if (isset($_POST['add_medal'])) {
+
+// Handle Update Medal Record (Update specific department’s medal count)
+if (isset($_POST['update_medal'])) {
     $department_id = $_POST['department_id'];
     $gold = $_POST['gold'];
     $silver = $_POST['silver'];
@@ -32,36 +33,13 @@ if (isset($_POST['add_medal'])) {
         $stmt->bind_param("iiiii", $department_id, $gold, $silver, $bronze, $total);
     }
     $stmt->execute();
-    header("Location: dashboard.php#medals");
+    header("Location: dashboard.php");
     exit();
 }
 
-// Handle Update Medal
-if (isset($_POST['update_medal'])) {
-    $id = $_POST['id'];
-    $gold = $_POST['gold'];
-    $silver = $_POST['silver'];
-    $bronze = $_POST['bronze'];
-    $total = (int)$gold + (int)$silver + (int)$bronze;
 
-    $stmt = $conn->prepare("UPDATE medals SET gold=?, silver=?, bronze=?, total=? WHERE id=?");
-    $stmt->bind_param("iiiii", $gold, $silver, $bronze, $total, $id);
-    $stmt->execute();
-    header("Location: dashboard.php#medals");
-    exit();
-}
 
-// Handle Delete Medal
-if (isset($_GET['delete_medal'])) {
-    $id = $_GET['delete_medal'];
-    $stmt = $conn->prepare("DELETE FROM medals WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    header("Location: dashboard.php#medals");
-    exit();
-}
-
-// ✅ Fetch all departments with overall totals (aggregated across all categories)
+// ✅ Fetch all departments and overall medal totals
 $departments = $conn->query("
     SELECT 
         d.id,
@@ -72,7 +50,7 @@ $departments = $conn->query("
         IFNULL(SUM(m.bronze), 0) AS bronze,
         IFNULL(SUM(m.total), 0) AS total
     FROM departments d
-    LEFT JOIN medals m ON d.id = m.department_id
+    LEFT JOIN medals m ON d.id = m.department_id AND m.category='Overall'
     GROUP BY d.id, d.code, d.mascot
     ORDER BY total DESC, gold DESC, silver DESC, bronze DESC
 ");
@@ -205,10 +183,9 @@ th { background-color: #212529 !important; color: white !important; }
 
 <div class="container mt-5">
 
-  <!-- 🥇 MEDAL TABULATION SECTION -->
+  <!-- 🥇 OVERALL MEDAL TABULATION -->
   <div id="medals" class="card shadow p-4 mb-5">
     <h3 class="section-title mb-4">🥇 Overall Medal Tabulation</h3>
-
     <div class="table-responsive">
       <table class="table table-bordered text-center align-middle">
         <thead>
@@ -220,6 +197,7 @@ th { background-color: #212529 !important; color: white !important; }
             <th>Silver 🥈</th>
             <th>Bronze 🥉</th>
             <th>Total 🧮</th>
+            <th>Actions ⚙️</th>
           </tr>
         </thead>
         <tbody>
@@ -227,13 +205,19 @@ th { background-color: #212529 !important; color: white !important; }
             $rankClass = ($rank == 1) ? "rank-1" : (($rank == 2) ? "rank-2" : (($rank == 3) ? "rank-3" : ""));
           ?>
           <tr class="<?= $rankClass ?>">
-            <td><strong><?= $rank++; ?></strong></td>
-            <td><strong><?= htmlspecialchars($row['code']); ?></strong></td>
-            <td><?= htmlspecialchars($row['mascot']); ?></td>
-            <td><strong><?= $row['gold']; ?></strong></td>
-            <td><strong><?= $row['silver']; ?></strong></td>
-            <td><strong><?= $row['bronze']; ?></strong></td>
-            <td><strong><?= $row['total']; ?></strong></td>
+            <form method="POST">
+              <td><strong><?= $rank++; ?></strong></td>
+              <td><strong><?= htmlspecialchars($row['code']); ?></strong></td>
+              <td><?= htmlspecialchars($row['mascot']); ?></td>
+              <td><input type="number" name="gold" value="<?= htmlspecialchars($row['gold']); ?>" min="0" class="form-control text-center"></td>
+              <td><input type="number" name="silver" value="<?= htmlspecialchars($row['silver']); ?>" min="0" class="form-control text-center"></td>
+              <td><input type="number" name="bronze" value="<?= htmlspecialchars($row['bronze']); ?>" min="0" class="form-control text-center"></td>
+              <td><strong><?= htmlspecialchars($row['total']); ?></strong></td>
+              <td>
+                <input type="hidden" name="department_id" value="<?= $row['id']; ?>">
+                <button type="submit" name="update_medal" class="btn btn-primary btn-sm px-3">💾 Update</button>
+              </td>
+            </form>
           </tr>
           <?php endwhile; ?>
         </tbody>
@@ -241,7 +225,7 @@ th { background-color: #212529 !important; color: white !important; }
     </div>
   </div>
 
-  <!-- 🏐 SPORTS MANAGEMENT SECTION -->
+  <!-- 🏐 SPORTS MANAGEMENT -->
   <div id="sports" class="card shadow p-4 mb-5">
     <h3 class="section-title mb-4">🏐 Sports Management</h3>
     <form method="POST" class="row g-3 mb-4 border rounded p-3 bg-light">

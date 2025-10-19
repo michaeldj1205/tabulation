@@ -1,7 +1,7 @@
 <?php
 include 'db_connect.php';
 
-// 🥇 Fetch all departments with medal counts (default 0 if no medals)
+// 🥇 Fetch only OVERALL medal standings (default 0 if no medals)
 $medals = $conn->query("
     SELECT 
         d.code, 
@@ -11,11 +11,13 @@ $medals = $conn->query("
         COALESCE(m.bronze, 0) AS bronze, 
         COALESCE(m.total, 0) AS total
     FROM departments d
-    LEFT JOIN medals m ON d.id = m.department_id
+    LEFT JOIN medals m 
+        ON d.id = m.department_id 
+        AND m.category = 'Overall'
     ORDER BY total DESC, gold DESC, silver DESC, bronze DESC, d.code ASC
 ");
 
-// ⚔️ Fetch all sports, with event results if any
+// ⚔️ Fetch all sports, with event results if any (unchanged)
 $results = $conn->query("
     SELECT 
         s.sport_name,
@@ -116,31 +118,19 @@ $results = $conn->query("
             <div class="winner-item">
               <div class="winner-label">🥇 Gold</div>
               <div class="winner-name">
-                <?php if ($r['gold_code']): ?>
-                  <?= htmlspecialchars($r['gold_code']); ?>
-                <?php else: ?>
-                  <span class="no-winner">--</span>
-                <?php endif; ?>
+                <?= $r['gold_code'] ? htmlspecialchars($r['gold_code']) : '<span class="no-winner">--</span>'; ?>
               </div>
             </div>
             <div class="winner-item">
               <div class="winner-label">🥈 Silver</div>
               <div class="winner-name">
-                <?php if ($r['silver_code']): ?>
-                  <?= htmlspecialchars($r['silver_code']); ?>
-                <?php else: ?>
-                  <span class="no-winner">--</span>
-                <?php endif; ?>
+                <?= $r['silver_code'] ? htmlspecialchars($r['silver_code']) : '<span class="no-winner">--</span>'; ?>
               </div>
             </div>
             <div class="winner-item">
               <div class="winner-label">🥉 Bronze</div>
               <div class="winner-name">
-                <?php if ($r['bronze_code']): ?>
-                  <?= htmlspecialchars($r['bronze_code']); ?>
-                <?php else: ?>
-                  <span class="no-winner">--</span>
-                <?php endif; ?>
+                <?= $r['bronze_code'] ? htmlspecialchars($r['bronze_code']) : '<span class="no-winner">--</span>'; ?>
               </div>
             </div>
           </div>
