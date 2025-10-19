@@ -12,33 +12,30 @@ $dbname = getenv('DB_NAME') ?: 'intramurals_tabulation';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
-    // Connect without database to create it
+    // First, connect without database to check if it exists
     $conn_temp = new mysqli($servername, $username, $password);
     $conn_temp->set_charset("utf8mb4");
 
-    // Create database if it doesn't exist
-    $conn_temp->query("CREATE DATABASE IF NOT EXISTS `$dbname`");
-    $conn_temp->select_db($dbname);
-
-    // Read and execute the SQL dump
-    $sql = file_get_contents('sql/admin_portal.sql');
-
-    // Execute the entire SQL dump using multi_query
-    if ($conn_temp->multi_query($sql)) {
-        do {
-            // Store first result set
-            if ($result = $conn_temp->store_result()) {
-                $result->free();
-            }
-        } while ($conn_temp->more_results() && $conn_temp->next_result());
+    // Check if database exists
+    $result = $conn_temp->query("SHOW DATABASES LIKE '$dbname'");
+    if ($result->num_rows == 0) {
+        // Database does not exist, run setup
+        include 'setup.php';
     }
+
+    // Close the temp connection after setup (or if database exists)
+    $conn_temp->close();
+
+    // Now connect to the database
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn->set_charset("utf8mb4");
 
     // Get admin credentials from environment
     $defaultUsername = getenv('ADMIN_USERNAME') ?: 'admin';
     $defaultPassword = getenv('ADMIN_PASSWORD') ?: '12345';
 
     // Check if admin already exists
-    $check = $conn_temp->prepare("SELECT id FROM admin_users WHERE username = ?");
+    $check = $conn->prepare("SELECT id FROM admin_users WHERE username = ?");
     $check->bind_param("s", $defaultUsername);
     $check->execute();
     $check->store_result();
@@ -48,7 +45,7 @@ try {
         $check->close();
 
         $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
-        $stmt = $conn_temp->prepare("INSERT INTO admin_users (username, password) VALUES (?, ?)");
+        $stmt = $conn->prepare("INSERT INTO admin_users (username, password) VALUES (?, ?)");
         $stmt->bind_param("ss", $defaultUsername, $hashedPassword);
         $stmt->execute();
         $stmt->close();
@@ -56,11 +53,9 @@ try {
         $check->close();
     }
 
-    // Don't close here - let db_connect.php handle it
-
 } catch (mysqli_sql_exception $e) {
-    // Log error for debugging
-    error_log("Database setup error: " . $e->getMessage());
-    die("Database setup failed. Please contact the administrator. Error: " . $e->getMessage());
+    // Fail silently or log errors for debugging (optional)
+    // error_log("Database error: " . $e->getMessage());
+    die("Database connection failed. Please contact the administrator.");
 }
 ?>

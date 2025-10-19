@@ -1,1 +1,3 @@
-db_connect.php
+
+# no need to ignore any files for this project since we provide the web hosting environment for this website
+# if this website is to be deployed on a different server, consider ignoring configuration files that may contain sensitive information
